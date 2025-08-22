@@ -15,14 +15,11 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 @Builder
-public class PostLoginService {
+public class AuthService {
     private final UserRepository repository;
-    private final ValidateLogin validateLogin;
     private final HashPassword hashPassword;
 
     public ResponseEntity<LoginResponse> postLogin(LoginRequest payload){
-        validateLogin.validate(payload);
-
         User user = repository.findByLogin(payload.login())
                 .orElseThrow(() -> new InvalidLoginException("Invalid username or password"));
 

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Component
 @Slf4j
@@ -26,11 +27,6 @@ public class ValidateUser {
             return;
         }
 
-        if (helpers.isBlank(payload.name())) errors.add("Name is Empty");
-        if (helpers.isBlank(payload.username())) errors.add("Username is Blank");
-        if (helpers.isBlank(payload.email())) errors.add("Email is Blank");
-        if (helpers.isBlank(payload.password())) errors.add("Password is Blank");
-
         if (!helpers.isBlank(payload.email()) && repository.existsByEmail(payload.email())) {
             errors.add("Email already exists");
         }
@@ -40,7 +36,7 @@ public class ValidateUser {
         helpers.throwIfErrors(errors);
     }
 
-    public void validate(PatchUserRequest payload) {
+    public void validate(UUID id, PatchUserRequest payload) {
         List<String> errors = new ArrayList<>();
         if (payload == null) {
             errors.add("Request Payload is Empty");
@@ -48,27 +44,16 @@ public class ValidateUser {
             return;
         }
 
-        payload.name().ifPresent(v -> {
-            if (helpers.isBlank(v)) errors.add("Name is Blank");
+        payload.email().ifPresent(email -> {
+            if (repository.existsByEmailAndIdNot(email, id)) {
+                errors.add("Email already exists");
+            }
         });
-        payload.username().ifPresent(v -> {
-            if (helpers.isBlank(v)) errors.add("Username is Blank");
-            else if (repository.existsByUsername(v)) errors.add("Username already exists");
+        payload.username().ifPresent(username -> {
+            if (repository.existsByUsernameAndIdNot(username, id)) {
+                errors.add("Username already exists");
+            }
         });
-        payload.email().ifPresent(v -> {
-            if (helpers.isBlank(v)) errors.add("Email is Blank");
-            else if (repository.existsByEmail(v)) errors.add("Email already exists");
-        });
-        payload.hashedPassword().ifPresent(v -> {
-            if (helpers.isBlank(v)) errors.add("Password is Blank");
-        });
-
-        if (payload.name().isEmpty()
-                && payload.username().isEmpty()
-                && payload.email().isEmpty()
-                && payload.hashedPassword().isEmpty()) {
-            errors.add("At least one field must be provided to patch");
-        }
 
         helpers.throwIfErrors(errors);
     }

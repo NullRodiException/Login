@@ -3,8 +3,11 @@ package com.rodrigo.login.common.exception;
 import com.rodrigo.login.common.exception.custom.BaseException;
 import com.rodrigo.login.contract.exception.response.ExceptionResponse;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.List;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -13,5 +16,16 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ExceptionResponse> handleShippingBaseException(BaseException ex){
         return ResponseEntity.status(ex.getHttpStatus())
                 .body(new ExceptionResponse(ex.getErrors()));
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ExceptionResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex){
+        List<String> errors = ex.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                .toList();
+
+        return ResponseEntity.badRequest().body(new ExceptionResponse(errors));
     }
 }

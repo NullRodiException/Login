@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.Builder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,11 +24,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Users", description = "Operations for managing users")
 public class UserController {
 
-    private final GetAllUsersService getAllUsersService;
-    private final PostUserService postUserService;
-    private final GetUserByIdService getUserByIdService;
-    private final PatchUserByIdService patchUserByIdService;
-    private final DeleteUserByIdService deleteUserByIdService;
+    private final UserService userService;
 
     @Operation(summary = "Get Users", description = "Returns all users")
     @ApiResponses(value = {
@@ -36,7 +33,7 @@ public class UserController {
     })
     @GetMapping
     public ResponseEntity<GetAllUsersResponse> getUsers() {
-        return getAllUsersService.getAllUsers();
+        return userService.getUsers();
     }
 
     @Operation(summary = "Post User", description = "Register a user")
@@ -45,8 +42,8 @@ public class UserController {
                     content = @Content(schema = @Schema(implementation = PostUserResponse.class))),
     })
     @PostMapping
-    public ResponseEntity<PostUserResponse> postUser(@RequestBody PostUserRequest payload) {
-        return postUserService.postUser(payload);
+    public ResponseEntity<PostUserResponse> postUser(@Valid @RequestBody PostUserRequest payload) {
+        return userService.postUser(payload);
     }
 
     @Operation(summary = "Get User by ID", description = "Get user by Id")
@@ -58,18 +55,7 @@ public class UserController {
     })
     @GetMapping("/{id}")
     public ResponseEntity<UserResponse> getUserById(@PathVariable("id") String id) {
-        return getUserByIdService.getUserById(id);
-    }
-
-    @Operation(summary = "Patch User", description = "Patch user by Id")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Successful operation"),
-            @ApiResponse(responseCode = "404", description = "User not found",
-                    content = @Content(schema = @Schema(implementation = ExceptionResponse.class))),
-    })
-    @PatchMapping("/{id}")
-    public ResponseEntity<Void> patchUser(@PathVariable("id") String id, @RequestBody PatchUserRequest payload) {
-        return patchUserByIdService.patchUser(id, payload);
+        return userService.getUserById(id);
     }
 
     @Operation(summary = "Delete User", description = "Delete user by Id")
@@ -80,6 +66,17 @@ public class UserController {
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable("id") String id) {
-        return deleteUserByIdService.deleteUser(id);
+        return userService.deleteUser(id);
+    }
+
+    @Operation(summary = "Patch User", description = "Patch user by Id")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Successful operation"),
+            @ApiResponse(responseCode = "404", description = "User not found",
+                    content = @Content(schema = @Schema(implementation = ExceptionResponse.class))),
+    })
+    @PatchMapping("/{id}")
+    public ResponseEntity<Void> patchUser(@PathVariable("id") String id,@Valid @RequestBody PatchUserRequest payload) {
+        return userService.patchUser(id, payload);
     }
 }

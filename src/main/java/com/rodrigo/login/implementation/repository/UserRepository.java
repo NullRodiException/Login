@@ -1,9 +1,6 @@
 package com.rodrigo.login.implementation.repository;
 
 import com.rodrigo.login.implementation.model.User;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -14,9 +11,12 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface UserRepository extends CrudRepository<User, UUID> {
-    boolean existsByEmail(@NotBlank(message = "Email is required") @Email(message = "Email is invalid") String email);
+    boolean existsByEmail(String email);
+    boolean existsByUsername(String username);
 
-    boolean existsByUsername(@NotBlank(message = "Username is required") @Pattern(regexp = "^[a-zA-Z0-9_-]{3,15}$", message = "Username must be alphanumeric and between 3 and 15 characters") String username);
+    boolean existsByEmailAndIdNot(String email, UUID id);
+
+    boolean existsByUsernameAndIdNot(String username, UUID id);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Transactional

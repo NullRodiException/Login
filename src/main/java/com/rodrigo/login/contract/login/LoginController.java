@@ -3,7 +3,7 @@ package com.rodrigo.login.contract.login;
 import com.rodrigo.login.contract.exception.response.ExceptionResponse;
 import com.rodrigo.login.contract.login.request.LoginRequest;
 import com.rodrigo.login.contract.login.response.LoginResponse;
-import com.rodrigo.login.implementation.services.login.PostLoginService;
+import com.rodrigo.login.implementation.services.login.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Auth", description = "Auth operations for user")
 public class LoginController {
 
-    private final PostLoginService postLoginService;
+    private final AuthService postLoginService;
 
     @Operation(summary = "Login", description = "User login operation")
     @ApiResponses(value = {
