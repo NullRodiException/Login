@@ -1,15 +1,25 @@
 package com.rodrigo.login.contract.user.request;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 public record PostUserRequest(
-        @NotBlank(message = "Name cannot be blank")
+        @NotBlank(message = "{user.name.blank}")
         String name,
-        @NotBlank(message = "Username cannot be blank")
+        @NotBlank(message = "{user.username.blank}")
+        @Pattern(regexp = "^[a-zA-Z0-9_]{3,15}$",
+                message = "{user.username.invalid}")
         String username,
-        @NotBlank(message = "Email cannot be blank")
+        @NotBlank(message = "{user.email.blank}")
+        @Email(message = "{user.email.invalid}")
         String email,
-        @NotBlank(message = "Password cannot be blank")
+        @Size(min = 8, max = 64,
+                message = "{user.password.blank}")
+        @Pattern(
+                regexp = "^(?=\\S+$)(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[\\p{P}\\p{S}]).+$",
+                message = "{user.password.mismatch}")
         String password
 ) {
 }
