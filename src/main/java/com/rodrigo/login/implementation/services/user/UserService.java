@@ -1,6 +1,5 @@
 package com.rodrigo.login.implementation.services.user;
 
-import com.rodrigo.login.common.exception.custom.NotFoundException;
 import com.rodrigo.login.common.utils.HashPassword;
 import com.rodrigo.login.contract.user.request.PatchUserRequest;
 import com.rodrigo.login.contract.user.request.PostUserRequest;
@@ -10,6 +9,7 @@ import com.rodrigo.login.contract.user.response.UserResponse;
 import com.rodrigo.login.implementation.model.User;
 import com.rodrigo.login.implementation.repository.UserRepository;
 import com.rodrigo.login.implementation.services.app.MessageService;
+import com.rodrigo.login.implementation.services.app.UserHelper;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -28,6 +28,7 @@ public class UserService {
     private final ValidateUser validateUser;
     private final HashPassword hashPassword;
     private final MessageService messageService;
+    private final UserHelper userHelper;
 
     public ResponseEntity<GetAllUsersResponse> getUsers() {
         Iterable<User> users = repository.findAll();
@@ -63,7 +64,7 @@ public class UserService {
     }
 
     public ResponseEntity<UserResponse> getUserById(String id){
-        User user = getUser(id);
+        User user = userHelper.getUser(id);
         UserResponse response = new UserResponse(
                 user.getId(),
                 user.getName(),
@@ -76,7 +77,7 @@ public class UserService {
     }
 
     public ResponseEntity<Void> deleteUser(String id){
-        User user = getUser(id);
+        User user = userHelper.getUser(id);
 
         repository.removeUserById(user.getId());
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
@@ -84,7 +85,7 @@ public class UserService {
 
     public ResponseEntity<Void> patchUser(String id, PatchUserRequest payload){
         validateUser.validate(UUID.fromString(id), payload);
-        User user = getUser(id);
+        User user = userHelper.getUser(id);
 
         payload.name()
                 .filter(StringUtils::hasText)
@@ -99,11 +100,5 @@ public class UserService {
         repository.save(user);
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-    }
-
-    private User getUser(String id){
-        return repository.findById(UUID.fromString(id)).orElseThrow(
-                () -> new NotFoundException(messageService.getMessage("user.not.found"))
-        );
     }
 }

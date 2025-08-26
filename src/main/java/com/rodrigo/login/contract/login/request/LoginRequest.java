@@ -3,9 +3,9 @@ package com.rodrigo.login.contract.login.request;
 import jakarta.validation.constraints.NotBlank;
 
 public record LoginRequest(
-        @NotBlank(message = "Login cannot be blank")
+        @NotBlank(message = "{user.login.blank}")
         String login,
-        @NotBlank(message = "Password cannot be blank")
+        @NotBlank(message = "{user.password.blank}")
         String password
 ) {
 }

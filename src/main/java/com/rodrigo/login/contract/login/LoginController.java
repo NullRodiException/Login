@@ -1,6 +1,7 @@
 package com.rodrigo.login.contract.login;
 
 import com.rodrigo.login.contract.exception.response.ExceptionResponse;
+import com.rodrigo.login.contract.login.request.ChangePasswordRequest;
 import com.rodrigo.login.contract.login.request.LoginRequest;
 import com.rodrigo.login.contract.login.response.LoginResponse;
 import com.rodrigo.login.implementation.services.login.AuthService;
@@ -10,12 +11,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.Builder;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -35,5 +34,18 @@ public class LoginController {
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest payload){
         return postLoginService.postLogin(payload);
+    }
+
+    @Operation(summary = "Change password", description = "Change user password operation")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Successful operation"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized",
+                    content = @Content(schema = @Schema(implementation = ExceptionResponse.class))),
+    })
+    @PatchMapping("/{id}/password")
+    public ResponseEntity<Void> changePassword(
+            @PathVariable String id,
+            @Valid @RequestBody ChangePasswordRequest payload){
+        return postLoginService.changePassword(id, payload);
     }
 }
