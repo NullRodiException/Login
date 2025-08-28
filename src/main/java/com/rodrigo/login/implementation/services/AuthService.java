@@ -49,6 +49,7 @@ public class AuthService {
         }
 
         user.setHashedPassword(hashPassword.hashPassword(payload.newPassword()));
+        user.setUpdatedAt(java.time.LocalDateTime.now());
         repository.save(user);
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
