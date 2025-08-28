@@ -4,7 +4,7 @@ import com.rodrigo.login.contract.exception.response.ExceptionResponse;
 import com.rodrigo.login.contract.login.request.ChangePasswordRequest;
 import com.rodrigo.login.contract.login.request.LoginRequest;
 import com.rodrigo.login.contract.login.response.LoginResponse;
-import com.rodrigo.login.implementation.services.login.AuthService;
+import com.rodrigo.login.implementation.services.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;

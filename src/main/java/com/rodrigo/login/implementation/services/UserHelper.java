@@ -1,4 +1,4 @@
-package com.rodrigo.login.implementation.services.app;
+package com.rodrigo.login.implementation.services;
 
 import com.rodrigo.login.common.exception.custom.NotFoundException;
 import com.rodrigo.login.implementation.model.User;

@@ -1,10 +1,9 @@
-package com.rodrigo.login.implementation.services.user;
+package com.rodrigo.login.implementation.services;
 
 import com.rodrigo.login.common.utils.Helpers;
 import com.rodrigo.login.contract.user.request.PatchUserRequest;
 import com.rodrigo.login.contract.user.request.PostUserRequest;
 import com.rodrigo.login.implementation.repository.UserRepository;
-import com.rodrigo.login.implementation.services.app.MessageService;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

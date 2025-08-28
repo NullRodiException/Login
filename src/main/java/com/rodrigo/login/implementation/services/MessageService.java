@@ -1,4 +1,4 @@
-package com.rodrigo.login.implementation.services.app;
+package com.rodrigo.login.implementation.services;
 
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;

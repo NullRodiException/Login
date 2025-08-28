@@ -2,7 +2,7 @@ package com.rodrigo.login.common.exception;
 
 import com.rodrigo.login.common.exception.custom.BaseException;
 import com.rodrigo.login.contract.exception.response.ExceptionResponse;
-import com.rodrigo.login.implementation.services.app.MessageService;
+import com.rodrigo.login.implementation.services.MessageService;
 import lombok.Builder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

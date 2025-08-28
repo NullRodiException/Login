@@ -1,4 +1,4 @@
-package com.rodrigo.login.implementation.services.login;
+package com.rodrigo.login.implementation.services;
 
 import com.rodrigo.login.common.exception.custom.InvalidLoginException;
 import com.rodrigo.login.common.utils.HashPassword;
@@ -7,8 +7,6 @@ import com.rodrigo.login.contract.login.request.LoginRequest;
 import com.rodrigo.login.contract.login.response.LoginResponse;
 import com.rodrigo.login.implementation.model.User;
 import com.rodrigo.login.implementation.repository.UserRepository;
-import com.rodrigo.login.implementation.services.app.MessageService;
-import com.rodrigo.login.implementation.services.app.UserHelper;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

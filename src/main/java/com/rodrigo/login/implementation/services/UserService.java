@@ -1,5 +1,7 @@
-package com.rodrigo.login.implementation.services.user;
+package com.rodrigo.login.implementation.services;
 
+import com.rodrigo.login.common.enums.UserRole;
+import com.rodrigo.login.common.exception.custom.InvalidPromotionException;
 import com.rodrigo.login.common.utils.HashPassword;
 import com.rodrigo.login.contract.user.request.PatchUserRequest;
 import com.rodrigo.login.contract.user.request.PostUserRequest;
@@ -8,8 +10,6 @@ import com.rodrigo.login.contract.user.response.PostUserResponse;
 import com.rodrigo.login.contract.user.response.UserResponse;
 import com.rodrigo.login.implementation.model.User;
 import com.rodrigo.login.implementation.repository.UserRepository;
-import com.rodrigo.login.implementation.services.app.MessageService;
-import com.rodrigo.login.implementation.services.app.UserHelper;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -33,12 +34,7 @@ public class UserService {
     public ResponseEntity<GetAllUsersResponse> getUsers() {
         Iterable<User> users = repository.findAll();
         GetAllUsersResponse response = new GetAllUsersResponse(new ArrayList<>());
-        users.forEach(user -> response.users().add(new UserResponse(
-                user.getId(),
-                user.getName(),
-                user.getUsername(),
-                user.getEmail()
-        )));
+        users.forEach(user -> response.users().add(buildUserResponse(user)));
 
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -54,6 +50,9 @@ public class UserService {
         user.setUsername(payload.username());
         user.setEmail(payload.email());
         user.setHashedPassword(hashedPassword);
+        user.setRole(UserRole.USER);
+        user.setCreatedAt(LocalDateTime.now());
+        user.setUpdatedAt(LocalDateTime.now());
 
         repository.save(user);
 
@@ -65,12 +64,7 @@ public class UserService {
 
     public ResponseEntity<UserResponse> getUserById(String id){
         User user = userHelper.getUser(id);
-        UserResponse response = new UserResponse(
-                user.getId(),
-                user.getName(),
-                user.getUsername(),
-                user.getEmail()
-        );
+        UserResponse response = buildUserResponse(user);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(response);
@@ -97,8 +91,32 @@ public class UserService {
                 .filter(StringUtils::hasText)
                 .ifPresent(user::setEmail);
 
+        user.setUpdatedAt(LocalDateTime.now());
         repository.save(user);
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    public ResponseEntity<Void> promoteUserToAdmin(String id){
+        User user = userHelper.getUser(id);
+        if(user.getRole() == UserRole.ADMIN){
+            throw new InvalidPromotionException(messageService.getMessage("error.user.has.admin"));
+        }
+        user.setRole(UserRole.ADMIN);
+        user.setUpdatedAt(LocalDateTime.now());
+        repository.save(user);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    private UserResponse buildUserResponse(User user){
+        return new UserResponse(
+                user.getId(),
+                user.getName(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getRole(),
+                user.getCreatedAt(),
+                user.getUpdatedAt()
+        );
     }
 }

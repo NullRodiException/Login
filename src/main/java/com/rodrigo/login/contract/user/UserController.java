@@ -6,7 +6,7 @@ import com.rodrigo.login.contract.user.request.PostUserRequest;
 import com.rodrigo.login.contract.user.response.GetAllUsersResponse;
 import com.rodrigo.login.contract.user.response.PostUserResponse;
 import com.rodrigo.login.contract.user.response.UserResponse;
-import com.rodrigo.login.implementation.services.user.*;
+import com.rodrigo.login.implementation.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -78,5 +78,18 @@ public class UserController {
     @PatchMapping("/{id}")
     public ResponseEntity<Void> patchUser(@PathVariable("id") String id,@Valid @RequestBody PatchUserRequest payload) {
         return userService.patchUser(id, payload);
+    }
+
+    @Operation(summary = "Promote User", description = "Promote user to Admin by Id")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Successful operation"),
+            @ApiResponse(responseCode = "400", description = "Invalid request",
+                    content = @Content(schema = @Schema(implementation = ExceptionResponse.class))),
+            @ApiResponse(responseCode = "404", description = "User not found",
+                    content = @Content(schema = @Schema(implementation = ExceptionResponse.class))),
+    })
+    @PostMapping("/promote/{id}")
+    public ResponseEntity<Void> promoteUserToAdmin(@PathVariable("id") String id){
+        return userService.promoteUserToAdmin(id);
     }
 }

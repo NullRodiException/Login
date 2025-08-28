@@ -15,11 +15,10 @@ public record PostUserRequest(
         @NotBlank(message = "{user.email.blank}")
         @Email(message = "{user.email.invalid}")
         String email,
-//        @Size(min = 8, max = 64,
-//                message = "{user.password.size}")
+        @Size(min = 8, max = 64, message = "{user.password.size}")
 //        @Pattern(
 //                regexp = "^(?=\\S+$)(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[\\p{P}\\p{S}]).+$",
-//                message = "{user.password.mismatch}")
+//                message = "{user.password.pattern}")
         String password
 ) {
 }
