@@ -1,6 +1,6 @@
 package com.rodrigo.login.contract.user.response;
 
-import com.rodrigo.login.common.enums.UserRole;
+import com.rodrigo.login.common.enums.UserRoleEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,7 +16,7 @@ public class UserResponse {
     private String name;
     private String username;
     private String email;
-    private UserRole role;
+    private UserRoleEnum role;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

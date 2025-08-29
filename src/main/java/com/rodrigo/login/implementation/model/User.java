@@ -1,6 +1,6 @@
 package com.rodrigo.login.implementation.model;
 
-import com.rodrigo.login.common.enums.UserRole;
+import com.rodrigo.login.common.enums.UserRoleEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -28,7 +28,7 @@ public class User {
     private String email;
     private String hashedPassword;
     @Enumerated(EnumType.STRING)
-    private UserRole role;
+    private UserRoleEnum role;
     @Column(updatable = false, name = "created_at")
     private LocalDateTime createdAt;
     @Column(name = "updated_at")

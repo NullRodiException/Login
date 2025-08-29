@@ -1,7 +1,7 @@
 package com.rodrigo.login.implementation.services;
 
 import com.rodrigo.login.common.exception.custom.InvalidLoginException;
-import com.rodrigo.login.common.utils.HashPassword;
+import com.rodrigo.login.common.security.HashPassword;
 import com.rodrigo.login.contract.login.request.ChangePasswordRequest;
 import com.rodrigo.login.contract.login.request.LoginRequest;
 import com.rodrigo.login.contract.login.response.LoginResponse;
@@ -20,7 +20,7 @@ public class AuthService {
     private final UserRepository repository;
     private final HashPassword hashPassword;
     private final MessageService messageService;
-    private final UserHelper userHelper;
+    private final UserService userService;
 
     public ResponseEntity<LoginResponse> postLogin(LoginRequest payload){
         User user = repository.findByLogin(payload.login())
@@ -41,7 +41,7 @@ public class AuthService {
     }
 
     public ResponseEntity<Void> changePassword(String id, ChangePasswordRequest payload){
-        User user = userHelper.getUser(id);
+        User user = userService.findUserById(id);
         if(!hashPassword.verifyPassword(payload.password(), user.getHashedPassword())){
             throw new InvalidLoginException(
                     messageService.getMessage("error.invalid.password")

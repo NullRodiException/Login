@@ -1,11 +1,13 @@
-package com.rodrigo.login.common.utils;
+package com.rodrigo.login.common.security;
 
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import lombok.Builder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
+@Builder
 public class HashPassword {
-    BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+    private final PasswordEncoder encoder;
 
     public String hashPassword(String password){
         return encoder.encode(password);

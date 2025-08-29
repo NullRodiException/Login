@@ -1,8 +1,9 @@
 package com.rodrigo.login.implementation.services;
 
-import com.rodrigo.login.common.enums.UserRole;
+import com.rodrigo.login.common.enums.UserRoleEnum;
 import com.rodrigo.login.common.exception.custom.InvalidPromotionException;
-import com.rodrigo.login.common.utils.HashPassword;
+import com.rodrigo.login.common.exception.custom.NotFoundException;
+import com.rodrigo.login.common.security.HashPassword;
 import com.rodrigo.login.contract.user.request.PatchUserRequest;
 import com.rodrigo.login.contract.user.request.PostUserRequest;
 import com.rodrigo.login.contract.user.response.GetAllUsersResponse;
@@ -26,10 +27,9 @@ import java.util.UUID;
 @Builder
 public class UserService {
     private final UserRepository repository;
-    private final ValidateUser validateUser;
+    private final UserValidator userValidator;
     private final HashPassword hashPassword;
     private final MessageService messageService;
-    private final UserHelper userHelper;
 
     public ResponseEntity<GetAllUsersResponse> getUsers() {
         Iterable<User> users = repository.findAll();
@@ -42,7 +42,7 @@ public class UserService {
     }
 
     public ResponseEntity<PostUserResponse> postUser(PostUserRequest payload) {
-        validateUser.validate(payload);
+        userValidator.validate(payload);
         String hashedPassword = hashPassword.hashPassword(payload.password());
 
         User user = new User();
@@ -50,7 +50,7 @@ public class UserService {
         user.setUsername(payload.username());
         user.setEmail(payload.email());
         user.setHashedPassword(hashedPassword);
-        user.setRole(UserRole.USER);
+        user.setRole(UserRoleEnum.USER);
         user.setCreatedAt(LocalDateTime.now());
         user.setUpdatedAt(LocalDateTime.now());
 
@@ -63,7 +63,7 @@ public class UserService {
     }
 
     public ResponseEntity<UserResponse> getUserById(String id){
-        User user = userHelper.getUser(id);
+        User user = this.findUserById(id);
         UserResponse response = buildUserResponse(user);
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -71,15 +71,15 @@ public class UserService {
     }
 
     public ResponseEntity<Void> deleteUser(String id){
-        User user = userHelper.getUser(id);
+        User user = this.findUserById(id);
 
         repository.removeUserById(user.getId());
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     public ResponseEntity<Void> patchUser(String id, PatchUserRequest payload){
-        validateUser.validate(UUID.fromString(id), payload);
-        User user = userHelper.getUser(id);
+        userValidator.validate(UUID.fromString(id), payload);
+        User user = this.findUserById(id);
 
         payload.name()
                 .filter(StringUtils::hasText)
@@ -98,14 +98,24 @@ public class UserService {
     }
 
     public ResponseEntity<Void> promoteUserToAdmin(String id){
-        User user = userHelper.getUser(id);
-        if(user.getRole() == UserRole.ADMIN){
+        User user = this.findUserById(id);
+        if(user.getRole() == UserRoleEnum.ADMIN){
             throw new InvalidPromotionException(messageService.getMessage("error.user.has.admin"));
         }
-        user.setRole(UserRole.ADMIN);
+        user.setRole(UserRoleEnum.ADMIN);
         user.setUpdatedAt(LocalDateTime.now());
         repository.save(user);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    public User findUserById(String id){
+        try {
+            return repository.findById(UUID.fromString(id)).orElseThrow(
+                    () -> new NotFoundException(messageService.getMessage("user.not.found"))
+            );
+        } catch (IllegalArgumentException e) {
+            throw new NotFoundException(messageService.getMessage("user.not.found"));
+        }
     }
 
     private UserResponse buildUserResponse(User user){

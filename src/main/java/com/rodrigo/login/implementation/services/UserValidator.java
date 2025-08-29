@@ -1,47 +1,46 @@
 package com.rodrigo.login.implementation.services;
 
-import com.rodrigo.login.common.utils.Helpers;
+import com.rodrigo.login.common.exception.custom.InvalidRequestException;
 import com.rodrigo.login.contract.user.request.PatchUserRequest;
 import com.rodrigo.login.contract.user.request.PostUserRequest;
 import com.rodrigo.login.implementation.repository.UserRepository;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-@Component
+@Service
 @Slf4j
 @Builder
-public class ValidateUser {
+public class UserValidator {
     private final UserRepository repository;
-    private final Helpers helpers;
     private final MessageService messageService;
 
     public void validate(PostUserRequest payload){
         List<String> errors = new ArrayList<>();
         if (payload == null) {
             errors.add(messageService.getMessage("request.payload.empty"));
-            helpers.throwIfErrors(errors);
+            this.throwIfErrors(errors);
             return;
         }
 
-        if (!helpers.isBlank(payload.email()) && repository.existsByEmail(payload.email())) {
+        if (this.isNotBlank(payload.email()) && repository.existsByEmail(payload.email())) {
             errors.add(messageService.getMessage("user.email.duplicate"));
         }
-        if (!helpers.isBlank(payload.username()) && repository.existsByUsername(payload.username())) {
+        if (this.isNotBlank(payload.username()) && repository.existsByUsername(payload.username())) {
             errors.add(messageService.getMessage("user.username.duplicate"));
         }
-        helpers.throwIfErrors(errors);
+        this.throwIfErrors(errors);
     }
 
     public void validate(UUID id, PatchUserRequest payload) {
         List<String> errors = new ArrayList<>();
         if (payload == null) {
             errors.add(messageService.getMessage("request.payload.empty"));
-            helpers.throwIfErrors(errors);
+            this.throwIfErrors(errors);
             return;
         }
 
@@ -56,6 +55,17 @@ public class ValidateUser {
             }
         });
 
-        helpers.throwIfErrors(errors);
+        this.throwIfErrors(errors);
     }
+
+    private boolean isNotBlank(String v) {
+        return v != null && !v.trim().isEmpty();
+    }
+
+    private void throwIfErrors(List<String> errors) {
+        if (!errors.isEmpty()) {
+            throw new InvalidRequestException(errors);
+        }
+    }
+
 }

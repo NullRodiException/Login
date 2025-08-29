@@ -1,6 +1,6 @@
 package com.rodrigo.login.common.enums;
 
-public enum UserRole {
+public enum UserRoleEnum {
     ADMIN,
     USER
 }
