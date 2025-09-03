@@ -1,6 +1,6 @@
 package com.rodrigo.login.implementation.repository;
 
-import com.rodrigo.login.implementation.model.User;
+import com.rodrigo.login.implementation.entity.User;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;

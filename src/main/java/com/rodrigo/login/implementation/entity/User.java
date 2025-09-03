@@ -1,4 +1,4 @@
-package com.rodrigo.login.implementation.model;
+package com.rodrigo.login.implementation.entity;
 
 import com.rodrigo.login.common.enums.UserRoleEnum;
 import io.swagger.v3.oas.annotations.media.Schema;

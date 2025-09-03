@@ -1,13 +1,15 @@
 package com.rodrigo.login.common.security;
 
-import lombok.Builder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
-@Builder
 public class HashPassword {
     private final PasswordEncoder encoder;
+
+    public HashPassword(PasswordEncoder encoder) {
+        this.encoder = encoder;
+    }
 
     public String hashPassword(String password){
         return encoder.encode(password);

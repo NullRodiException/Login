@@ -5,9 +5,8 @@ import com.rodrigo.login.common.security.HashPassword;
 import com.rodrigo.login.contract.login.request.ChangePasswordRequest;
 import com.rodrigo.login.contract.login.request.LoginRequest;
 import com.rodrigo.login.contract.login.response.LoginResponse;
-import com.rodrigo.login.implementation.model.User;
+import com.rodrigo.login.implementation.entity.User;
 import com.rodrigo.login.implementation.repository.UserRepository;
-import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,12 +14,20 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
-@Builder
 public class AuthService {
     private final UserRepository repository;
     private final HashPassword hashPassword;
     private final MessageService messageService;
     private final UserService userService;
+    private final TokenService tokenService;
+
+    public AuthService(UserRepository repository, HashPassword hashPassword, MessageService messageService, UserService userService, TokenService tokenService) {
+        this.repository = repository;
+        this.hashPassword = hashPassword;
+        this.messageService = messageService;
+        this.userService = userService;
+        this.tokenService = tokenService;
+    }
 
     public ResponseEntity<LoginResponse> postLogin(LoginRequest payload){
         User user = repository.findByLogin(payload.login())
@@ -33,8 +40,8 @@ public class AuthService {
                     messageService.getMessage("error.invalid.credentials")
             );
         }
-
-        LoginResponse response = new LoginResponse(user.getName());
+        var token = tokenService.generateToken(user);
+        LoginResponse response = new LoginResponse(token);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(response);

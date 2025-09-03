@@ -12,17 +12,19 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import lombok.Builder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/auth")
-@Builder
 @Tag(name = "Auth", description = "Auth operations for user")
 public class LoginController {
 
     private final AuthService postLoginService;
+
+    public LoginController(AuthService postLoginService) {
+        this.postLoginService = postLoginService;
+    }
 
     @Operation(summary = "Login", description = "User login operation")
     @ApiResponses(value = {
