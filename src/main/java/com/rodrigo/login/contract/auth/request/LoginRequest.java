@@ -1,4 +1,4 @@
-package com.rodrigo.login.contract.login.request;
+package com.rodrigo.login.contract.auth.request;
 
 import jakarta.validation.constraints.NotBlank;
 

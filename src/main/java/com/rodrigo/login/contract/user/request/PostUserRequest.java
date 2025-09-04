@@ -16,9 +16,9 @@ public record PostUserRequest(
         @Email(message = "{user.email.invalid}")
         String email,
         @Size(min = 8, max = 64, message = "{user.password.size}")
-//        @Pattern(
-//                regexp = "^(?=\\S+$)(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[\\p{P}\\p{S}]).+$",
-//                message = "{user.password.pattern}")
+        @Pattern(
+                regexp = "^(?=\\S+$)(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[\\p{P}\\p{S}]).+$",
+                message = "{user.password.pattern}")
         String password
 ) {
 }

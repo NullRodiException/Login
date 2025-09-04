@@ -37,43 +37,33 @@ public class UserService {
         this.messageService = messageService;
     }
 
-    public ResponseEntity<GetAllUsersResponse> getUsers() {
+    public GetAllUsersResponse getUsers() {
         List<UserResponse> userResponses = StreamSupport.stream(repository.findAll().spliterator(), false)
                 .map(this::buildUserResponse)
                 .toList();
 
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(new GetAllUsersResponse(userResponses));
+        return new GetAllUsersResponse(userResponses);
     }
 
-    public ResponseEntity<PostUserResponse> postUser(PostUserRequest payload) {
+    public PostUserResponse postUser(PostUserRequest payload) {
         this.validate(payload);
         String hashedPassword = hashPassword.hashPassword(payload.password());
         User user = this.buildNewUser(payload, hashedPassword);
         repository.save(user);
-        PostUserResponse response = new PostUserResponse(user.getId());
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(response);
+        return new PostUserResponse(user.getId());
     }
 
-    public ResponseEntity<UserResponse> getUserById(String id){
+    public UserResponse getUserById(String id){
         User user = this.findUserById(id);
-        UserResponse response = buildUserResponse(user);
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(response);
+        return this.buildUserResponse(user);
     }
 
-    public ResponseEntity<Void> deleteUser(String id){
+    public void deleteUser(String id){
         User user = this.findUserById(id);
-
         repository.removeUserById(user.getId());
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    public ResponseEntity<Void> patchUser(String id, PatchUserRequest payload){
+    public void patchUser(String id, PatchUserRequest payload){
         User user = this.findUserById(id);
         this.validate(user.getId(), payload);
 
@@ -87,18 +77,15 @@ public class UserService {
                 .filter(StringUtils::hasText)
                 .ifPresent(user::setEmail);
         this.updateAndSaveUser(user);
-
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    public ResponseEntity<Void> promoteUserToAdmin(String id){
+    public void promoteUserToAdmin(String id){
         User user = this.findUserById(id);
         if(user.getRole() == UserRoleEnum.ADMIN){
             throw new InvalidPromotionException(messageService.getMessage("error.user.has.admin"));
         }
         user.setRole(UserRoleEnum.ADMIN);
         updateAndSaveUser(user);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     public User findUserById(String id){

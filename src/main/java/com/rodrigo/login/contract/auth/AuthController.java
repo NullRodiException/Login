@@ -1,9 +1,9 @@
-package com.rodrigo.login.contract.login;
+package com.rodrigo.login.contract.auth;
 
 import com.rodrigo.login.contract.exception.response.ExceptionResponse;
-import com.rodrigo.login.contract.login.request.ChangePasswordRequest;
-import com.rodrigo.login.contract.login.request.LoginRequest;
-import com.rodrigo.login.contract.login.response.LoginResponse;
+import com.rodrigo.login.contract.auth.request.ChangePasswordRequest;
+import com.rodrigo.login.contract.auth.request.LoginRequest;
+import com.rodrigo.login.contract.auth.response.LoginResponse;
 import com.rodrigo.login.implementation.services.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -12,17 +12,18 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/auth")
 @Tag(name = "Auth", description = "Auth operations for user")
-public class LoginController {
+public class AuthController {
 
     private final AuthService postLoginService;
 
-    public LoginController(AuthService postLoginService) {
+    public AuthController(AuthService postLoginService) {
         this.postLoginService = postLoginService;
     }
 
@@ -35,7 +36,10 @@ public class LoginController {
     })
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest payload){
-        return postLoginService.postLogin(payload);
+        LoginResponse response = postLoginService.postLogin(payload);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(response);
     }
 
     @Operation(summary = "Change password", description = "Change user password operation")
@@ -48,6 +52,7 @@ public class LoginController {
     public ResponseEntity<Void> changePassword(
             @PathVariable String id,
             @Valid @RequestBody ChangePasswordRequest payload){
-        return postLoginService.changePassword(id, payload);
+        postLoginService.changePassword(id, payload);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }
