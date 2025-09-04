@@ -22,6 +22,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.StreamSupport;
 
 @Service
 @Slf4j
@@ -37,30 +38,20 @@ public class UserService {
     }
 
     public ResponseEntity<GetAllUsersResponse> getUsers() {
-        Iterable<User> users = repository.findAll();
-        GetAllUsersResponse response = new GetAllUsersResponse(new ArrayList<>());
-        users.forEach(user -> response.users().add(buildUserResponse(user)));
+        List<UserResponse> userResponses = StreamSupport.stream(repository.findAll().spliterator(), false)
+                .map(this::buildUserResponse)
+                .toList();
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(response);
+                .body(new GetAllUsersResponse(userResponses));
     }
 
     public ResponseEntity<PostUserResponse> postUser(PostUserRequest payload) {
         this.validate(payload);
         String hashedPassword = hashPassword.hashPassword(payload.password());
-
-        User user = new User();
-        user.setName(payload.name());
-        user.setUsername(payload.username());
-        user.setEmail(payload.email());
-        user.setHashedPassword(hashedPassword);
-        user.setRole(UserRoleEnum.USER);
-        user.setCreatedAt(LocalDateTime.now());
-        user.setUpdatedAt(LocalDateTime.now());
-
+        User user = this.buildNewUser(payload, hashedPassword);
         repository.save(user);
-
         PostUserResponse response = new PostUserResponse(user.getId());
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -83,8 +74,8 @@ public class UserService {
     }
 
     public ResponseEntity<Void> patchUser(String id, PatchUserRequest payload){
-        this.validate(UUID.fromString(id), payload);
         User user = this.findUserById(id);
+        this.validate(user.getId(), payload);
 
         payload.name()
                 .filter(StringUtils::hasText)
@@ -95,9 +86,7 @@ public class UserService {
         payload.email()
                 .filter(StringUtils::hasText)
                 .ifPresent(user::setEmail);
-
-        user.setUpdatedAt(LocalDateTime.now());
-        repository.save(user);
+        this.updateAndSaveUser(user);
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
@@ -108,19 +97,33 @@ public class UserService {
             throw new InvalidPromotionException(messageService.getMessage("error.user.has.admin"));
         }
         user.setRole(UserRoleEnum.ADMIN);
-        user.setUpdatedAt(LocalDateTime.now());
-        repository.save(user);
+        updateAndSaveUser(user);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     public User findUserById(String id){
+        UUID uuid;
         try {
-            return repository.findById(UUID.fromString(id)).orElseThrow(
-                    () -> new NotFoundException(messageService.getMessage("user.not.found"))
-            );
+            uuid = UUID.fromString(id);
         } catch (IllegalArgumentException e) {
             throw new NotFoundException(messageService.getMessage("user.not.found"));
         }
+        return repository.findById(uuid).orElseThrow(
+                () -> new NotFoundException(messageService.getMessage("user.not.found"))
+        );
+    }
+
+    private User buildNewUser(PostUserRequest payload, String hashedPassword) {
+        User user = new User();
+        user.setName(payload.name());
+        user.setUsername(payload.username());
+        user.setEmail(payload.email());
+        user.setHashedPassword(hashedPassword);
+        user.setRole(UserRoleEnum.USER);
+        LocalDateTime now = LocalDateTime.now();
+        user.setCreatedAt(now);
+        user.setUpdatedAt(now);
+        return user;
     }
 
     private UserResponse buildUserResponse(User user){
@@ -143,10 +146,10 @@ public class UserService {
             return;
         }
 
-        if (this.isNotBlank(payload.email()) && repository.existsByEmail(payload.email())) {
+        if (StringUtils.hasText(payload.email()) && repository.existsByEmail(payload.email())) {
             errors.add(messageService.getMessage("user.email.duplicate"));
         }
-        if (this.isNotBlank(payload.username()) && repository.existsByUsername(payload.username())) {
+        if (StringUtils.hasText(payload.username()) && repository.existsByUsername(payload.username())) {
             errors.add(messageService.getMessage("user.username.duplicate"));
         }
         this.throwIfErrors(errors);
@@ -174,8 +177,9 @@ public class UserService {
         this.throwIfErrors(errors);
     }
 
-    private boolean isNotBlank(String v) {
-        return v != null && !v.trim().isEmpty();
+    private void updateAndSaveUser(User user) {
+        user.setUpdatedAt(LocalDateTime.now());
+        repository.save(user);
     }
 
     private void throwIfErrors(List<String> errors) {
