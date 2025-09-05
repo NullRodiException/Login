@@ -17,6 +17,8 @@ import java.util.Date;
 @Service
 public class TokenService {
 
+    private final UserService userService;
+
     @Value("${jwt.secret.key}")
     private String secret;
 
@@ -24,8 +26,9 @@ public class TokenService {
     private long expirationTime;
 
     public TokenService(
-            @Value("${jwt.secret.key}") String secret,
+            UserService userService, @Value("${jwt.secret.key}") String secret,
             @Value("${jwt.expiration.time}") long expirationTime){
+        this.userService = userService;
         this.secret = secret;
         this.expirationTime = expirationTime;
     }
@@ -61,7 +64,8 @@ public class TokenService {
 
     public Boolean validateToken(String token, UserDetails userDetails) {
         try {
-            final String login = getIdFromToken(token);
+            final String idFromToken = getIdFromToken(token);
+            final String login = userService.findUserById(idFromToken).getUsername();
             return (login.equals(userDetails.getUsername()) && !tokenExpired(token));
         } catch (SignatureException | ExpiredJwtException ex) {
             return Boolean.FALSE;

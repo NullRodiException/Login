@@ -25,6 +25,7 @@ public class CustomUserDetailService implements UserDetailsService {
                 .orElseThrow(() -> new InvalidLoginException(
                         messageService.getMessage("user.not.found")
                 ));
+
         return new CustomUserDetail(user);
     }
 }
