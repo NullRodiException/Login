@@ -13,8 +13,6 @@ import com.rodrigo.login.contract.user.response.UserResponse;
 import com.rodrigo.login.implementation.entity.User;
 import com.rodrigo.login.implementation.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -45,7 +43,7 @@ public class UserService {
         return new GetAllUsersResponse(userResponses);
     }
 
-    public PostUserResponse postUser(PostUserRequest payload) {
+    public PostUserResponse registerUser(PostUserRequest payload) {
         this.validate(payload);
         String hashedPassword = hashPassword.hashPassword(payload.password());
         User user = this.buildNewUser(payload, hashedPassword);

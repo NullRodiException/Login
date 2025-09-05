@@ -48,8 +48,8 @@ public class UserController {
                     content = @Content(schema = @Schema(implementation = PostUserResponse.class))),
     })
     @PostMapping
-    public ResponseEntity<PostUserResponse> postUser(@Valid @RequestBody PostUserRequest payload) {
-        PostUserResponse response = userService.postUser(payload);
+    public ResponseEntity<PostUserResponse> registerUser(@Valid @RequestBody PostUserRequest payload) {
+        PostUserResponse response = userService.registerUser(payload);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(response);

@@ -4,12 +4,9 @@ import com.rodrigo.login.common.exception.custom.InvalidLoginException;
 import com.rodrigo.login.common.security.HashPassword;
 import com.rodrigo.login.contract.auth.request.ChangePasswordRequest;
 import com.rodrigo.login.contract.auth.request.LoginRequest;
-import com.rodrigo.login.contract.auth.response.LoginResponse;
 import com.rodrigo.login.implementation.entity.User;
 import com.rodrigo.login.implementation.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -29,7 +26,7 @@ public class AuthService {
         this.tokenService = tokenService;
     }
 
-    public LoginResponse postLogin(LoginRequest payload){
+    public String postLogin(LoginRequest payload){
         User user = repository.findByLogin(payload.login())
                 .orElseThrow(() -> new InvalidLoginException(
                         messageService.getMessage("user.not.found")
@@ -40,8 +37,7 @@ public class AuthService {
                     messageService.getMessage("error.invalid.credentials")
             );
         }
-        var token = tokenService.generateToken(user);
-        return new LoginResponse(token);
+        return tokenService.generateToken(user);
     }
 
     public void changePassword(String id, ChangePasswordRequest payload){
