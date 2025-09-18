@@ -9,9 +9,9 @@ public record PatchUserRequest(
         Optional<String> name,
         Optional<@Pattern(
                 regexp = "^[a-zA-Z0-9_-]{3,15}$",
-                message = "{user.username.invalid}")
+                message = "Username must be 3-15 characters long and contain only letters, numbers, underscores, or hyphens.")
                 String> username,
         Optional<@Email(
-                message = "{user.email.invalid}")
+                message = "Invalid email format.")
                 String> email
 ) {}

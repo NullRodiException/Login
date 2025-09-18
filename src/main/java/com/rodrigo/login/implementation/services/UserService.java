@@ -27,12 +27,10 @@ import java.util.stream.StreamSupport;
 public class UserService {
     private final UserRepository repository;
     private final HashPassword hashPassword;
-    private final MessageService messageService;
 
-    public UserService(UserRepository repository, HashPassword hashPassword, MessageService messageService) {
+    public UserService(UserRepository repository, HashPassword hashPassword) {
         this.repository = repository;
         this.hashPassword = hashPassword;
-        this.messageService = messageService;
     }
 
     public GetAllUsersResponse getUsers() {
@@ -80,7 +78,7 @@ public class UserService {
     public void promoteUserToAdmin(String id){
         User user = this.findUserById(id);
         if(user.getRole() == UserRoleEnum.ADMIN){
-            throw new InvalidPromotionException(messageService.getMessage("error.user.has.admin"));
+            throw new InvalidPromotionException("User is already an administrator.");
         }
         user.setRole(UserRoleEnum.ADMIN);
         updateAndSaveUser(user);
@@ -91,10 +89,10 @@ public class UserService {
         try {
             uuid = UUID.fromString(id);
         } catch (IllegalArgumentException e) {
-            throw new NotFoundException(messageService.getMessage("user.not.found"));
+            throw new NotFoundException("User not found.");
         }
         return repository.findById(uuid).orElseThrow(
-                () -> new NotFoundException(messageService.getMessage("user.not.found"))
+                () -> new NotFoundException("User not found.")
         );
     }
 
@@ -126,16 +124,16 @@ public class UserService {
     private void validate(PostUserRequest payload){
         List<String> errors = new ArrayList<>();
         if (payload == null) {
-            errors.add(messageService.getMessage("request.payload.empty"));
+            errors.add("Request payload cannot be empty.");
             this.throwIfErrors(errors);
             return;
         }
 
         if (StringUtils.hasText(payload.email()) && repository.existsByEmail(payload.email())) {
-            errors.add(messageService.getMessage("user.email.duplicate"));
+            errors.add("Email already registered.");
         }
         if (StringUtils.hasText(payload.username()) && repository.existsByUsername(payload.username())) {
-            errors.add(messageService.getMessage("user.username.duplicate"));
+            errors.add("Username already registered.");
         }
         this.throwIfErrors(errors);
     }
@@ -143,19 +141,19 @@ public class UserService {
     private void validate(UUID id, PatchUserRequest payload) {
         List<String> errors = new ArrayList<>();
         if (payload == null) {
-            errors.add(messageService.getMessage("request.payload.empty"));
+            errors.add("Request payload cannot be empty.");
             this.throwIfErrors(errors);
             return;
         }
 
         payload.email().ifPresent(email -> {
             if (repository.existsByEmailAndIdNot(email, id)) {
-                errors.add(messageService.getMessage("user.email.duplicate"));
+                errors.add("Email already registered.");
             }
         });
         payload.username().ifPresent(username -> {
             if (repository.existsByUsernameAndIdNot(username, id)) {
-                errors.add(messageService.getMessage("user.username.duplicate"));
+                errors.add("Username already registered.");
             }
         });
 

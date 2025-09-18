@@ -12,19 +12,15 @@ import org.springframework.stereotype.Service;
 @Service
 public class CustomUserDetailService implements UserDetailsService {
     private final UserRepository repository;
-    private final MessageService messageService;
 
-    public CustomUserDetailService(UserRepository repository, MessageService messageService) {
+    public CustomUserDetailService(UserRepository repository) {
         this.repository = repository;
-        this.messageService = messageService;
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = repository.findByLogin(username)
-                .orElseThrow(() -> new InvalidLoginException(
-                        messageService.getMessage("user.not.found")
-                ));
+                .orElseThrow(() -> new InvalidLoginException("User not found"));
 
         return new CustomUserDetail(user);
     }

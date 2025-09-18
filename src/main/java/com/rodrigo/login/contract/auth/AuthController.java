@@ -31,7 +31,7 @@ public class AuthController {
 
     @Operation(summary = "Login", description = "User login operation")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Successful operation"),
+            @ApiResponse(responseCode = "200", description = "Successful operation"),
             @ApiResponse(responseCode = "401", description = "Unauthorized",
                     content = @Content(schema = @Schema(implementation = ExceptionResponse.class))),
     })
@@ -47,7 +47,7 @@ public class AuthController {
                 .maxAge(3600)
                 .build();
         httpServletResponse.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @Operation(summary = "Change password", description = "Change user password operation")

@@ -14,38 +14,30 @@ import org.springframework.stereotype.Service;
 public class AuthService {
     private final UserRepository repository;
     private final HashPassword hashPassword;
-    private final MessageService messageService;
     private final UserService userService;
     private final TokenService tokenService;
 
-    public AuthService(UserRepository repository, HashPassword hashPassword, MessageService messageService, UserService userService, TokenService tokenService) {
+    public AuthService(UserRepository repository, HashPassword hashPassword, UserService userService, TokenService tokenService) {
         this.repository = repository;
         this.hashPassword = hashPassword;
-        this.messageService = messageService;
         this.userService = userService;
         this.tokenService = tokenService;
     }
 
     public String postLogin(LoginRequest payload){
         User user = repository.findByLogin(payload.login())
-                .orElseThrow(() -> new InvalidLoginException(
-                        messageService.getMessage("user.not.found")
-                ));
+                .orElseThrow(() -> new InvalidLoginException("User not found"));
 
         if (!hashPassword.verifyPassword(payload.password(), user.getHashedPassword())) {
-            throw new InvalidLoginException(
-                    messageService.getMessage("error.invalid.credentials")
-            );
+            throw new InvalidLoginException("Invalid credentials");
         }
         return tokenService.generateToken(user);
     }
 
     public void changePassword(String id, ChangePasswordRequest payload){
         User user = userService.findUserById(id);
-        if(!hashPassword.verifyPassword(payload.password(), user.getHashedPassword())){
-            throw new InvalidLoginException(
-                    messageService.getMessage("error.invalid.password")
-            );
+        if(!hashPassword.verifyPassword(payload.currentPassword(), user.getHashedPassword())){
+            throw new InvalidLoginException("Invalid current password");
         }
 
         user.setHashedPassword(hashPassword.hashPassword(payload.newPassword()));
